@@ -5,6 +5,9 @@
 #'   \item Read SimiC or SimiCPipeline output tables from CSV and pickle files.
 #'   \item Organize weights, AUCs, and metadata into a coherent object.
 #'   \item Visualize regulatory networks and performance metrics.
+#'   \item Compute and visualize regulatory dissimilarity across phenotypes
+#'         (see \code{\link{calculate_dissimilarity}} and
+#'         \code{\link{plot_dissimilarity_heatmap}}).
 #'   \item Export plots (PDF) and processed data tables (CSV) into a
 #'         reproducible directory hierarchy.
 #' }
