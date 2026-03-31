@@ -21,10 +21,20 @@ Depends:
 Imports:
     methods,
     stats,
+    BiocParallel,
+    igraph,
+    viridisLite,
     utils,
+    Matrix,
+    graphics,
+    SummarizedExperiment,
+    colorspace,
+    gridExtra,
     ggplot2,
+    dplyr,
+    tibble,
+    tidyr,
     reshape2,
-    cowplot,
     scales,
     reticulate (>= 1.45.0)
 Suggests:
@@ -35,4 +45,4 @@ Suggests:
 VignetteBuilder: knitr
 biocViews: Software, Visualization, GeneRegulation, Network
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.1
