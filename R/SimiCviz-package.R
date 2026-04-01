@@ -28,7 +28,7 @@ NULL
 #'
 #' Lightweight S4 container for SimiC visualization data.
 #'
-#' @slot weights list with weight matrices and adjusted R2 per label.
+#' @slot weights list with weight matrices and adjusted R² per label.
 #' @slot auc list containing the collected AUC data. The canonical element is
 #'   \code{$collected}: a data.frame with cells in rows, TFs in columns, and
 #'   an optional \code{label} column. This format is shared across all GRN
@@ -250,7 +250,7 @@ load_cell_labels <- function(x, ...) {
 
 #' Construct a SimiCvizExperiment object
 #'
-#' @param weights list with weight matrices and adjusted R2.
+#' @param weights list with weight matrices and adjusted R².
 #' @param auc optional list containing AUC data. The preferred format is
 #'   \code{list(collected = df)} where \code{df} is a cells × TF data.frame.
 #'   A plain data.frame is automatically wrapped into this structure.

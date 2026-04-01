@@ -4,7 +4,7 @@
 #'
 #' S4 generic for computing TF activity scores (AUC-like metrics).
 #'
-#' @param object An object that implements a \\code{compute_auc} method.
+#' @param object An object that implements a \code{compute_auc} method.
 #' @param ... Additional method-specific arguments.
 #' @return Object with computed activity scores.
 #' @export
@@ -14,7 +14,7 @@ setGeneric("compute_auc", function(object, ...) standardGeneric("compute_auc"))
 #'
 #' S4 generic for retrieving computed TF activity scores.
 #'
-#' @param object An object that implements a \\code{get_auc} method.
+#' @param object An object that implements a \code{get_auc} method.
 #' @param ... Additional method-specific arguments.
 #' @return Extracted activity scores.
 #' @export
@@ -224,7 +224,7 @@ AUCProcessor <- function(weights,
 
 # --- Show method ---
 
-#' @param object A \\code{\\linkS4class{AUCProcessor}} object.
+#' @param object A \code{\linkS4class{AUCProcessor}} object.
 #' @rdname AUCProcessor-class
 #' @export
 setMethod("show", "AUCProcessor", function(object) {
@@ -258,14 +258,14 @@ setMethod("show", "AUCProcessor", function(object) {
 #' Efficiently calculates TF activity scores for each cell using its
 #' corresponding label-specific GRN. Uses BiocParallel for parallelization.
 #'
-#' @param object A \\code{\\linkS4class{AUCProcessor}} object.
+#' @param object A \code{\linkS4class{AUCProcessor}} object.
 #' @param sort_by sorting criterion ("expression" or "weight")
 #' @param select_top_k keep only top K targets per TF (NULL = use all)
 #' @param percent_of_target percentage of targets to use (0-1)
 #' @param verbose print progress messages
 #'
-#' @return A \\code{\\linkS4class{AUCProcessor}} object with computed scores
-#'   in the \\code{auc_results} slot.
+#' @return A \code{\linkS4class{AUCProcessor}} object with computed scores
+#'   in the \code{auc_results} slot.
 #' @export
 setMethod(
   "compute_auc",
@@ -429,10 +429,10 @@ setMethod(
 
 #' Get computed activity scores
 #'
-#' @param object A \\code{\\linkS4class{AUCProcessor}} object.
-#' @param format Output format: \\code{"wide"} for cells x TF table, or
-#'   \\code{"long"} for long format with columns \\code{cell}, \\code{tf},
-#'   \\code{score}, and \\code{label}.
+#' @param object A \code{\linkS4class{AUCProcessor}} object.
+#' @param format Output format: \code{"wide"} for cells x TF table, or
+#'   \code{"long"} for long format with columns \code{cell}, \code{tf},
+#'   \code{score}, and \code{label}.
 #'
 #' @return A data.frame with activity scores in the requested format.
 #' @export

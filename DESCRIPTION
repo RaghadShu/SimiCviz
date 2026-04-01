@@ -22,7 +22,6 @@ Imports:
     methods,
     stats,
     BiocParallel,
-    igraph,
     viridisLite,
     utils,
     Matrix,

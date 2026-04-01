@@ -358,9 +358,9 @@ plot_auc_cumulative <- function(x, tf_names = NULL, labels = NULL, alpha = 0.8,
       delta_cols <- grep("^delta_", colnames(ecdf_df), value = TRUE)
       sub_parts  <- character()
       if ("delta_ecdf_auc" %in% delta_cols)
-        sub_parts <- c(sub_parts, sprintf("Delta*AUC: %.4f",  ecdf_df[tf, "delta_ecdf_auc"]))
+        sub_parts <- c(sub_parts, sprintf("\u0394 AUC: %.4f",  ecdf_df[tf, "delta_ecdf_auc"]))
       if ("delta_auc50"    %in% delta_cols)
-        sub_parts <- c(sub_parts, sprintf("Delta*AUC50: %.4f", ecdf_df[tf, "delta_auc50"]))
+        sub_parts <- c(sub_parts, sprintf("\u0394 AUC50: %.4f", ecdf_df[tf, "delta_auc50"]))
       if (length(sub_parts) > 0L) subtitle_parts <- paste(sub_parts, collapse = "  |  ")
     }
     p <- p + ggplot2::ggtitle(tf, subtitle_parts)
