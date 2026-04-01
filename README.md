@@ -2,7 +2,10 @@
 
 SimiCviz — Visualization tools for SimiC and SimiCPipeline outputs.
 
-A lightweight R/Bioconductor-oriented package to import, summarize and plot single cell gene regulatory network outputs (weights, TF activity/AUC matrices, networks and related figures) produced by SimiC or other GRN inference tools.
+A lightweight R/Bioconductor-oriented package to import, summarize, and visualize
+single-cell gene regulatory network (GRN) outputs (weights, TF activity/AUC,
+network summaries, and dissimilarity metrics) from SimiC/SimiCPipeline and
+other GRN inference tools.
 
 ## Status
 - Current: Install from GitHub (development).
@@ -23,52 +26,99 @@ remotes::install_github("irenemaring/SimiCviz")
 ```r
 library(SimiCviz)
 
-# Load example data included with the package
-simic <- load_SimiCPipeline(project_dir = system.file("extdata", package = "SimiCviz"),
+# Load SimiCvizExperiment directly from SimiCPipeline run output
+simic <- load_SimiCPipeline(project_dir = "path/to/SimiCPipeline_run_dir",
                             run_name = "example1",
                             lambda1 = 0.01, lambda2 = 0.001)
 
-# Set labels and plot an example
-simic <- setLabelNames(simic, label_names = c("control","PD-L1","DAC","Combo"),
-                       colors = c("#e0e0e0","#a8c8ff","#ffb6b6","#c1a9e0"))
-# Alternativ data formats
+# Visualize TF activity distributions for 4 TFs
+plot_auc_distributions(
+    simic,
+    tf_names = simic@tf_ids[1:4],
+    fill = TRUE,
+    alpha = 0.6,
+    bw_adjust = 1 / 8,
+    rug = TRUE,
+    grid = c(2, 2)
+)
+```
 
-# Weight file
-weight_path <-  system.file("extdata","example_weights.csv", 
-                            package = "SimiCviz")
-weight_df <- read_weights_csv(weight_path)
-head(weight_df)
+## Generic CSV + AUC example
 
-# Activity Score File
-auc_path <-  system.file("extdata","example_auc.csv", package = "SimiCviz")
-auc_df <- read_auc_csv(auc_path)
-head(auc_df)
+```r
+library(SimiCviz)
 
-simic3 <- SimiCvizExperiment(weights = weight_df,
-                              auc = auc_df,
-                              tf_ids = unique(auc_df$tf),
-                              target_ids = unique(weight_df$target),
-                              meta = list(lambda1 = 0.01, lambda2= 0.001),
-                              label_names = c("control","PD-L1","DAC","Combo"),
-                              colors = c("#e0e0e0", "#a8c8ff", "#ffb6b6", "#c1a9e0"))
+# Example files bundled with the package
+weights_path <- system.file("extdata", "example_weights.csv", package = "SimiCviz")
+cell_labels_path <- system.file("extdata", "inputFiles/treatment_annotation.csv", package = "SimiCviz")
 
-plot_tf_weights(simic, tf_names = simic@tf_ids[1:4], top_n    = 30)
+# Load GRN weights and cell labels
+weights_df <- read_weights_csv(weights_path)
+cell_labels <- load_cell_labels(cell_labels_path, header = TRUE, sep = ",")
 
-plot_auc_distributions(simic3, tf_names = simic3@tf_ids[1:4], 
-                       labels = c("control","Combo")
-                       fill = TRUE, 
-                       alpha = .6,
-                       bw_adjust = 1/8,
-                       rug = TRUE,
-                       grid = c(2,2))
+# Load expression matrix from your file (csv/pickle/h5ad/rds)
+expression_path <- expression_mat_path <- system.file("extdata",file.path("inputFiles", "example1_expression.pickle"),package = "SimiCviz")
+
+# Compute activity scores (AUC) with AUCProcessor
+processor <- AUCProcessor(
+    weights = weights_df,
+    expression = expression_path,
+    cell_labels = cell_labels,
+    n_cores = 2,
+    backend = "multisession"
+)
+
+processor <- compute_auc(
+    processor,
+    sort_by = "expression",
+    percent_of_target = 1.0,
+    verbose = TRUE
+)
+
+# Activity matrix in wide format (cells x TFs)
+auc_wide <- get_auc(processor, format = "wide")
+head(auc_wide)
+```
+
+## Plot examples
+
+```r
+# Build a SimiCvizExperiment from loaded weights + computed AUC
+viz_obj <- SimiCvizExperiment(
+    weights = weights_df,
+    auc = auc_wide,
+    cell_labels = cell_labels,
+    label_names = c("control", "PD-L1", "DAC", "Combination"),
+    colors = c("#e0e0e0", "#a8c8ff", "#ffb6b6", "#c1a9e0")
+)
+
+# 1) Weight barplots (top targets per TF)
+plot_tf_weights(viz_obj, tf_names = viz_obj@tf_ids[1:4], top_n = 20)
+
+# 2) Dissimilarity heatmap for top TFs
+plot_dissimilarity_heatmap(viz_obj, top_n = 10, cmap = "viridis")
+
+# 3) AUC summary heatmap
+plot_auc_heatmap(viz_obj, top_n = 20)
 ```
 
 ## Main features
-- Read SimiCPipeline outputs (pickle/CSV) and standardize into a SimiCvizExperiment object.
-- Visualize TF weights and target weights (barplots), regulatory networks, and AUC/activity distributions.
-- Integration with Seurat for UMAP visualization.
-- Export organized data and publication-ready plots.
-- Support for importing results from other methods via CSV.
+- Load and standardize GRN outputs from SimiCPipeline and generic CSV formats.
+- Build and manage `SimiCvizExperiment` containers for weights, AUC/activity,
+    cell labels, and metadata.
+- Compute activity scores from expression + GRN weights using
+    `calculate_activity_scores` or `AUCProcessor`.
+- Perform TF-level dissimilarity analysis across labels and optional cell groups.
+- Compute ECDF-based comparison metrics with `calculate_ecdf_auc`.
+- Import/export tabular results for reproducible analysis workflows.
+
+## Plotting functions
+- Weight visualization: `plot_tf_weights`, `plot_target_weights`
+- Network view: `plot_tf_network_heatmap`
+- Model fit diagnostics (SimiC): `plot_r2_distribution`
+- Dissimilarity: `plot_dissimilarity_heatmap`
+- Activity distributions: `plot_auc_distributions`, `plot_auc_cumulative`
+- Summary views: `plot_auc_heatmap`, `plot_auc_summary_statistics`
 
 ## Graphical abstract / Logo
 (placeholder — add an image here when available)
