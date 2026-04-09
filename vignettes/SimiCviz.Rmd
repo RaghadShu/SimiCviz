@@ -35,7 +35,7 @@ The package is interoperable and agnostic to the GRN inference methods, acceptin
 # Loading GRN Data
 
 ## Data Format Requirements
-SimiCviz easily easily handles `SimiCPipeline` outputs but also accepts GRN weights in a flexible long format. The input `data.frame` must include the following columns: 
+SimiCviz easily handles `SimiCPipeline` outputs but also accepts GRN weights in a flexible long format. The input `data.frame` must include the following columns: 
 
 - **`tf`**: Transcription factor name
 - **`target`**: Target gene name  
@@ -54,10 +54,10 @@ Optional quality metrics for filtering weights:
 [**`SimiCPipeline`**](https://github.com/ML4BM-Lab/SimiCPipeline.git) is a regularized regression method for inferring condition-specific GRNs. It generates:
 
 - `.pickle` files with TF-target weights per phenotype/label and adjusted R² values for goodness of fit of the target expression model. 
-- `.csv` file with TF activity score matrix (cells × TFs)
+- `.csv` file with a TF activity score matrix (cells × TFs)
 - `.pickle` files with per-label matrices (cells × TFs) [Legacy SimiC v1 - Deprecated]
 
-These outputs are organized in a directory set like this:
+These outputs are organized in a directory structure like this:
 ```
 Project/
 ├── inputFiles/
@@ -74,7 +74,7 @@ Project/
             └── example1_L1_0.1_L2_0.01_wAUC_matrices_filtered_BIC_collected.csv
 ```
 
-Here we show how to easily load a `SimiCPipeline` run. You only need the directory, experiment name and hyperparameters since the directory output is standardized. `SimiCviz` will automatically find the files and generate the `SimiCvizExperiment`.
+Here we show how to easily load a `SimiCPipeline` run. You only need the directory, experiment name, and hyperparameters since the directory output is standardized. `SimiCviz` will automatically find the files and generate the `SimiCvizExperiment`.
 
 ```{r, echo = FALSE}
 simic_full <- readRDS(system.file("extdata", file.path("simic_full.rds"), 
@@ -107,7 +107,7 @@ If you run the full [`SimiCPipeline` tutorial ](https://github.com/ML4BM-Lab/Sim
 
 
 ## Manual Loading
-If you need more flexibility in the workflow, or have precomputed outputs using SimiC v1, you can construct `SimiCvizExperiment` or `AUCprocessor` objects by loading the required files separately.
+If you need more flexibility in the workflow, or have precomputed outputs using SimiC v1, you can construct `SimiCvizExperiment` or `AUCProcessor` objects by loading the required files separately.
 
 ### Weights from pickle
 
@@ -226,7 +226,7 @@ adjusted_r_squared <- out$adjusted_r_squared
 
 viz_obj_simic <- SimiCvizExperiment(
   weights = simic_weights,
-  auc = NULL,  # Will compute this inthe next section later but can be loaded as well
+  auc = NULL,  # Will compute this in the next section later but can be loaded as well
   cell_labels = cell_labels,
   label_names = c("control","PD-L1","DAC","Combination"),
   colors = c("#e0e0e0", "#a8c8ff", "#ffb6b6", "#c1a9e0"),
@@ -320,10 +320,10 @@ head(auc_long)
 Alternatively you can filter in advance your weights and use SimiCvizExperiment and the wrapper function `calculate_activity_scores`
 ```{r, eval = F}
 weights_df <- read.csv("path/to/your/weights.csv")
-weights_df_fitlered <- weights_df[weights_df$p_value < 0.01,]
+weights_df_filtered <- weights_df[weights_df$p_value < 0.01,]
 # From CSV files
 viz_obj <- SimiCvizExperiment(
-  weights = weights_df_fitlered,
+  weights = weights_df_filtered,
   auc = NULL,  # Will compute this inthe next section later but can be loaded as well
   cell_labels = cell_labels,
   label_names = c("control","PD-L1","DAC","Combination"),
@@ -387,7 +387,7 @@ Once you have computed the activity scores, you are ready to visualize the resul
 
 For visualization we need a `SimiCvizExperiment` object loaded with the results.
 
-If you used `load_SimiCPipeline` of computed the activity scores with `calculate_activity_scores` you already have it.
+If you used `load_SimiCPipeline` or computed the activity scores with `calculate_activity_scores` you already have it.
 ```{r}
 # Recall above examples
  simic_full # Complete SimiCpipeline output
@@ -400,10 +400,10 @@ Otherwise you can load your results in `SimiCvizExperiment` as exemplified above
 ***Note**: Although activity score matrix is not strictly necessary, you need it to fully explore all the visualization tools of `SimiCviz`.*
 
 
-If you used other methods to calculate a cell specific activity score metrics with a different algorithm, you can import those as well in:
+If you used other methods to calculate cell-specific activity scores with a different algorithm, you can import those as well in:
 
 - wide format: cells x TF scores matrix
-- long format: data. frame with cell, tf, score
+- long format: data.frame with cell, tf, score
 - .pickle file (only for SimiC v1)
 
 
@@ -427,7 +427,7 @@ plot_dir <- file.path(getwd(),"SimiCviz_output")
 dir.create(plot_dir,recursive = TRUE)
 ```
 ## Quality Assessment (SimiC only)
-To assess the goodness of SimiC's fitted model of target expression we can plot the distribution adjusted R² values across all targets.
+To assess the goodness of SimiC's fitted model of target expression we can plot the distribution of adjusted R² values across all targets.
 ```{r}
 # Plot distribution of adjusted R² values across targets
 # Extract Adjusted R squared from SimiC outputs
@@ -446,7 +446,7 @@ Lower R² might indicate:
 
 For these targets with low adjusted R2, we suggest to filter them out before plotting. We select a threshold of 0.7 as it was the same used to calculate the activity scores in SimiCPipeline and above. You can change this threshold as needed, but you should re-run the activity score calculation (or SimiCPipeline) with the same threshold to be consistent.
 
-*If you already filtered your weight matrix before creating the SimiCviz obejct you can skip this part*
+*If you already filtered your weight matrix before creating the SimiCviz object you can skip this part*
 ```{r}
 # Select targets by adjusted R2
 unselected_targets <- list()
@@ -500,7 +500,7 @@ plot_target_weights(
 ```
 
 ***Note:** If you want to plot all TFs and Targets leave the `tf_names` and target_names arguments respectively blank.*
-***Note:**: You can also save teh output and acces indivicual plots
+***Note:**: You can also save teh output and acces individual plots
 
 ```{r include=FALSE}
 all_tfs_barplots <- plot_tf_weights(
@@ -523,7 +523,7 @@ all_tfs_barplots[[1]]
 ```
 
 ### Regulatory Network Heatmap
-You can extract a TF regulon with the function `get_tf_network` and plot in in heatmap fashion.
+You can extract a TF regulon with the function `get_tf_network` and plot it as a heatmap.
 ```{r}
 network <- get_tf_network(simic_full, "Tet2", r2_threshold = 0.7)
 print(head(network))
@@ -555,7 +555,7 @@ plot_dissimilarity_heatmap(simic,
                            cmap = "viridis",
                            save = FALSE)
 ```
-Sometimes these transcriptional dynamics are cell-type or cell-cluster specific. For that we might be interested in calculating the dissimilarity scores across the labels within specific cell clusters. For that, we can subset the `SimiCvizExperiment` object by the desired labels and then calculate the dissimilarity scores and plot the heatmap as shown before.
+Sometimes these transcriptional dynamics are cell-type or cell-cluster specific. In this case, we may want to calculate the dissimilarity scores across the labels within specific cell clusters. For that, we can subset the `SimiCvizExperiment` object by the desired labels and then calculate the dissimilarity scores and plot the heatmap as shown before.
 
 ```{r}
 metadata <- read.csv(system.file("extdata/metadata.csv", 
@@ -580,7 +580,7 @@ plot_dissimilarity_heatmap(simic,
                             filename = "dissimilarity_heatmap_grouped.pdf")
 ```
 
-We can also select the labels accross which we want to compute the dissimilarity score with the argument `labels` and customize the color and sorting options.
+We can also select the labels across which we want to compute the dissimilarity score with the argument `labels` and customize the color and sorting options.
 ```{r}
 # For labels 0,2
 plot_dissimilarity_heatmap(simic,
