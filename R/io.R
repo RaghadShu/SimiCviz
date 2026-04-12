@@ -427,6 +427,19 @@ load_SimiCPipeline <- function(project_dir,
     stop("Matrix directory does not exist for the specified project_dir and run_name: ", matrix_dir)
   }
 
+  # Use exactly the user input for lambda1 and lambda2 R evaluates them
+  # This preserves the exact formatting used by the user (e.g., "0.0001" vs "1e-04") 
+  lambda1_expr <- deparse(substitute(lambda1))
+  lambda2_expr <- deparse(substitute(lambda2))
+  
+  # Determine the string representation to use in file matching:
+  # - If the user passed a literal value (e.g., lambda2 = 0.0001), use the exact input string.
+  # - If the user passed a variable (e.g., lambda2 = x), substitute() returns "x",
+  #   which is not useful for file matching. In that case, fall back to as.character().
+  lambda1_str <- if (lambda1_expr != "lambda1") lambda1_expr else as.character(lambda1)
+  lambda2_str <- if (lambda2_expr != "lambda2") lambda2_expr else as.character(lambda2)
+
+  # Construct filename correctly
   base_name <- paste0(run_name, "_L1_", lambda1, "_L2_", lambda2, "_")
   input_files  <- list.files(file.path(project_dir, "inputFiles"), full.names = TRUE) # For cell labels
   output_files <- list.files(matrix_dir, pattern = base_name, full.names = TRUE) # For weights and AUC
